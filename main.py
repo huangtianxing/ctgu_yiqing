@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 
 def login(name, user):
     msg = user['msg']
+    sengkey = user['sendkey']
     user['user']['username'] = tuple(user['user']['username'])
     user['user']['password'] = tuple(user['user']['password'])
     sese = requests.session()
@@ -42,13 +43,17 @@ def login(name, user):
             try:
                 res = sese.post('http://yiqing.ctgu.edu.cn/wx/health/saveApply.do', data=msg,
                                 verify=False)
+
             except:
                 print('saveapply.do页面请求失败')
-            print(res)
-            print(res.text)
+                sendmessage('陈露露 上报失败！', sengkey)
+                return
+            sendmessage('陈露露 上报成功！', sengkey)
 
         else:
-            print(name + ' ' + find_status)
+            rest = name + ' ' + find_status
+            print(rest)
+            sendmessage(rest, sengkey)
 
 
 def main():
@@ -56,6 +61,16 @@ def main():
         uuserlist = json.load(f)
     for name, user in uuserlist.items():
         login(name, user)
+
+
+def sendmessage(message, sendkey):
+    if sendkey == '':
+        return
+    url = 'https://sctapi.ftqq.com/' + sendkey + '.send?title='
+    try:
+        send = requests.get(url + message)
+    except:
+        return
 
 
 if __name__ == '__main__':
